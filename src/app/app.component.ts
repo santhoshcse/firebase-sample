@@ -1,7 +1,6 @@
 import { Component } from '@angular/core';
-import { AngularFirestore } from 'angularfire2/firestore';
 import { Observable } from 'rxjs';
-import { reject } from 'q';
+import { BookService, Book } from './book.service';
 
 @Component({
   selector: 'app-root',
@@ -10,40 +9,29 @@ import { reject } from 'q';
 })
 export class AppComponent {
 
-  public books: Observable<any[]>;
+  public books: Observable<Book[]>;
 
   private bookCounter = 0;
 
-  constructor(public firestore: AngularFirestore) {
-      this.books = this.firestore.collection<Book>('/books').valueChanges();
+  constructor(
+    public bookService: BookService) {
+      this.books = this.bookService.getBooks();
   }
 
   add() {
-    this.firestore
-    .collection('books')
-    .add({ title: 'book ' + this.bookCounter++ })
-    .then(res => {}, err => reject(err));
+    let book : Book = { title: 'book ' + this.bookCounter++ };
+    this.bookService.addBook(book);
   }
 
-  delete(book) {
-    this.firestore
-    .collection('books')
-    .doc(book.payload.doc.id)
-    .delete();
+  delete(book : Book) {
+    this.bookService.deleteBook(book);
   }
 
-  get() {
-    // TODO
+  get(bookId : string) {
+    this.bookService.getBook(bookId);
   }
 
-  update() {
-    // TODO
-  }
-}
-
-class Book {
-  title: string;
-  constructor(title: string) {
-    this.title = title;
+  update(book : Book) {
+    this.bookService.updateBook(book);
   }
 }

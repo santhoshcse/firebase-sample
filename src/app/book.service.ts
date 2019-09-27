@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { AngularFirestore } from 'angularfire2/firestore';
+import { reject } from 'q';
 
 @Injectable({
   providedIn: 'root'
@@ -8,8 +9,11 @@ export class BookService {
 
   constructor(public firestore: AngularFirestore) { }
 
-  addBook(book) {
-    // TODO
+  addBook(book : Book) {
+    this.firestore
+    .collection('books')
+    .add(book)
+    .then(res => {}, err => reject(err));
   }
 
   getBook(bookId) {
@@ -17,14 +21,22 @@ export class BookService {
   }
 
   getBooks() {
-    // TODO
+    return this.firestore.collection<Book>('/books').valueChanges();
   }
 
   deleteBook(bookId) {
-    // TODO
+    this.firestore
+    .collection('books')
+    // .doc(book.payload.doc.id)
+    .doc(bookId)
+    .delete();
   }
 
-  updateBook(book) {
+  updateBook(book : Book) {
     // TODO
   }
+}
+
+export interface Book {
+  title: string;
 }
