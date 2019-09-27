@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
-import { Observable } from 'rxjs';
 import { BookService, Book } from './book.service';
+import { DocumentChangeAction } from 'angularfire2/firestore';
 
 @Component({
   selector: 'app-root',
@@ -9,13 +9,13 @@ import { BookService, Book } from './book.service';
 })
 export class AppComponent {
 
-  public books: Observable<Book[]>;
+  public books : DocumentChangeAction<Book>[];
 
   private bookCounter = 0;
 
   constructor(
     public bookService: BookService) {
-      this.books = this.bookService.getBooks();
+      this.getAll();
   }
 
   add() {
@@ -23,7 +23,7 @@ export class AppComponent {
     this.bookService.addBook(book);
   }
 
-  delete(book : Book) {
+  delete(book : DocumentChangeAction<Book>) {
     this.bookService.deleteBook(book);
   }
 
@@ -31,7 +31,11 @@ export class AppComponent {
     this.bookService.getBook(bookId);
   }
 
-  update(book : Book) {
+  update(book : DocumentChangeAction<Book>) {
     this.bookService.updateBook(book);
+  }
+
+  getAll() {
+    this.bookService.getBooks().subscribe(res => (this.books = res));
   }
 }

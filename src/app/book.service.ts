@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { AngularFirestore } from 'angularfire2/firestore';
+import { AngularFirestore, DocumentChangeAction } from 'angularfire2/firestore';
 import { reject } from 'q';
 
 @Injectable({
@@ -11,7 +11,7 @@ export class BookService {
 
   addBook(book : Book) {
     this.firestore
-    .collection('books')
+    .collection<Book>('books')
     .add(book)
     .then(res => {}, err => reject(err));
   }
@@ -21,19 +21,23 @@ export class BookService {
   }
 
   getBooks() {
-    return this.firestore.collection<Book>('/books').valueChanges();
+    return this.firestore
+    .collection<Book>('books')
+    .snapshotChanges();
   }
 
-  deleteBook(bookId) {
-    this.firestore
-    .collection('books')
-    // .doc(book.payload.doc.id)
-    .doc(bookId)
+  deleteBook(book : DocumentChangeAction<Book>) {
+    return this.firestore
+    .collection<Book>('books')
+    .doc<Book>(book.payload.doc.id)
     .delete();
   }
 
-  updateBook(book : Book) {
-    // TODO
+  updateBook(book : DocumentChangeAction<Book>) {
+    this.firestore
+    .collection<Book>('books')
+    .doc<Book>(book.payload.doc.id)
+    .set({ title: 'book updated' });
   }
 }
 
